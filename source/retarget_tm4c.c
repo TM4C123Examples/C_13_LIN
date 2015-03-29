@@ -47,7 +47,8 @@ int getkey(void){
   return ((unsigned char)((UART0->DR)&0xFF));
 }
 
-void sendchar(int ch){
+int sendchar(int ch){
   while((UART0->FR&UART_FR_TXFF) != 0);
   UART0->DR =(ch&(0xFF));
+	return ch;
 }
