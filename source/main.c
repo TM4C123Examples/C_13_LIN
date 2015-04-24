@@ -12,7 +12,6 @@ void configureLeds(void);
 
 void lin_init(void);
 int sendchar3(int ch);
-FILE stream3 ={sendchar3};
 void lin_sendBreak(void);
 
 int contador=0;
@@ -23,13 +22,18 @@ int main(){
 	UART0_init();
 	lin_init();
 	printf("\nIngrese comando\n");
-	fprintf(&stream3,"\nLos comando se mostraran aqui\n");
+	//fprintf(&stream3,"\nLos comando se mostraran aqui\n");
 	while(1){
 		printf("$ ");
 		gets(buffer);	
 		printf("%s\n",buffer);
 		lin_sendBreak();
-		fprintf(&stream3,"%s\n",buffer);
+		sendchar3(0x55);
+		sendchar3(0x49);
+		sendchar3(0x0);
+		sendchar3(0x1);
+		sendchar3(0x2);
+		sendchar3(0x3);
 	}
 }
 
@@ -60,12 +64,13 @@ void lin_init(void){
 };
 
 int sendchar3(int ch){
-  while((UART3->FR&(0x1<<5)));//buffer not full
+  while((UART3->FR&(0x1<<5)));//while buffer not full
   UART3->DR =(ch&(0xFF));
 	return ch;
 }
 
 void lin_sendBreak(void){
+	while(!(UART3->FR&(0x1<<7)))//while buffer not empty
 	BREAK_SENT=0;
 	UART3->LCRH|=(0x1<<0);//Send break
 	while(!BREAK_SENT){
